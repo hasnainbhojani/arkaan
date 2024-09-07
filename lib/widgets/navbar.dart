@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hajj/pages/queries.dart';
 
 class Navbar extends StatelessWidget {
   const Navbar({super.key});
@@ -26,7 +27,10 @@ class Navbar extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.quiz),
             title: Text("Send Your Queries"),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Queries()));
+            },
           ),
           ListTile(
             leading: Icon(Icons.share),
@@ -37,23 +41,16 @@ class Navbar extends StatelessWidget {
             thickness: 0.1,
           ),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text("Settings"),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.info),
-            title: Text("About Us"),
-            onTap: () {},
-          ),
-          Divider(
-            thickness: 0.1,
-          ),
-          ListTile(
             leading: Icon(Icons.exit_to_app),
             title: Text("Exit"),
             onTap: () {
-              exit(0);
+              {
+                if (Platform.isAndroid) {
+                  SystemNavigator.pop();
+                } else if (Platform.isIOS) {
+                  exit(0);
+                }
+              }
             },
           ),
         ],

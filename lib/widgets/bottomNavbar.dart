@@ -1,12 +1,12 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, camel_case_types
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hajj/main.dart';
+import 'package:hajj/pages/ayatullah.dart';
 import 'package:hajj/pages/counter.dart';
+import 'package:hajj/pages/profile.dart';
 import 'package:hajj/widgets/navbar.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:hajj/pages/home.dart';
 
 class navMenu extends StatelessWidget {
@@ -55,12 +55,8 @@ class NavigationController extends GetxController {
 
   final screens = [
     const MyHomePage(),
-    Container(
-      color: Colors.purple,
-    ),
+    const ayatullah(),
     const counter(),
-    Container(
-      color: Colors.purple,
-    )
+    const profile(),
   ];
 }

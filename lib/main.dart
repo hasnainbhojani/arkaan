@@ -1,7 +1,10 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unused_import
 
 import 'package:flutter/material.dart';
 import 'package:hajj/pages/home.dart';
+import 'package:hajj/pages/login.dart';
+import 'package:hajj/pages/register.dart';
+import 'package:hajj/pages/splash.dart';
 import 'package:hajj/widgets/bottomNavbar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -29,7 +32,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.dark(),
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent),
-      home: const navMenu(),
+      home: const splashScreen(),
     );
   }
 }

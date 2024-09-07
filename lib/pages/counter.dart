@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_import, camel_case_types, sized_box_for_whitespace
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +38,7 @@ class _counterState extends State<counter> with SingleTickerProviderStateMixin {
                 SizedBox(
                   height: 10,
                 ),
+                // Title
                 Text(
                   "Counter",
                   style: TextStyle(fontSize: 28, color: Colors.white),
@@ -45,6 +46,7 @@ class _counterState extends State<counter> with SingleTickerProviderStateMixin {
                 SizedBox(
                   height: 25,
                 ),
+                // Tawaf and Safa Marwah Tab
                 Container(
                   width: MediaQuery.of(context).size.height,
                   decoration: BoxDecoration(
@@ -109,6 +111,7 @@ class _tawafSafaState extends State<tawafSafa> {
         SizedBox(
           height: 20,
         ),
+        // Display Image
         Image.asset(
           widget.image,
           width: 244,
@@ -117,6 +120,7 @@ class _tawafSafaState extends State<tawafSafa> {
         SizedBox(
           height: 20,
         ),
+        // Reset Button
         ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white.withOpacity(0.3),
@@ -137,6 +141,7 @@ class _tawafSafaState extends State<tawafSafa> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Minus Button
               InkWell(
                 onTap: () {
                   if (counting > 0) {
@@ -165,6 +170,7 @@ class _tawafSafaState extends State<tawafSafa> {
               SizedBox(
                 width: 20,
               ),
+              // Displaying the counted number
               Container(
                 height: 101,
                 width: 101,
@@ -185,6 +191,7 @@ class _tawafSafaState extends State<tawafSafa> {
               SizedBox(
                 width: 20,
               ),
+              // Plus Button
               InkWell(
                 onTap: () {
                   if (counting < 7) {
