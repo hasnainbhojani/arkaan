@@ -3,11 +3,28 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:hajj/controller/logincontroller.dart';
 import 'package:hajj/pages/login.dart';
 import 'package:hajj/pages/register.dart';
+import 'package:hajj/widgets/bottomNavbar.dart';
 
-class splashScreen extends StatelessWidget {
+class splashScreen extends StatefulWidget {
   const splashScreen({super.key});
+
+  @override
+  State<splashScreen> createState() => _splashScreenState();
+}
+
+class _splashScreenState extends State<splashScreen> {
+  LoginController loginController = Get.put(LoginController());
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loginController.skipLogin();
+  }
 
   @override
   Widget build(BuildContext context) {

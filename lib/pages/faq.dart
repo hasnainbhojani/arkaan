@@ -58,6 +58,7 @@ class _faqpageState extends State<faqpage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: InkWell(
+                  splashColor: Colors.white.withOpacity(0.1),
                   onTap: () {
                     Navigator.push(
                         context,
@@ -110,6 +111,7 @@ class _faqpageState extends State<faqpage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: InkWell(
+                  splashColor: Colors.white.withOpacity(0.1),
                   onTap: () {
                     Navigator.push(
                         context,

@@ -28,6 +28,7 @@ class umrah extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
+                splashColor: Colors.white.withOpacity(0.1),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -89,6 +90,7 @@ class umrah extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
+                splashColor: Colors.white.withOpacity(0.1),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -150,6 +152,7 @@ class umrah extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
+                splashColor: Colors.white.withOpacity(0.1),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -211,6 +214,7 @@ class umrah extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
+                splashColor: Colors.white.withOpacity(0.1),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -272,6 +276,7 @@ class umrah extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
+                splashColor: Colors.white.withOpacity(0.1),
                 onTap: () {
                   Navigator.push(
                       context,

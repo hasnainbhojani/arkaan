@@ -344,6 +344,7 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 20,
             ),
             InkWell(
+              splashColor: Colors.white.withOpacity(0.1),
               onTap: () {
                 Navigator.push(
                     context,

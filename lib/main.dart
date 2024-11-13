@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, unused_import
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hajj/pages/home.dart';
 import 'package:hajj/pages/login.dart';
 import 'package:hajj/pages/register.dart';
@@ -17,8 +18,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Arkaan App',
+      initialRoute: "/navMenu",
+      routes: {
+        '/navMenu': (context) => const navMenu(),
+        '/splash': (context) => const splashScreen(),
+      },
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: ThemeData(
