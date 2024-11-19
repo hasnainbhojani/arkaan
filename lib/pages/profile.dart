@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:hajj/controller/logincontroller.dart';
 
 class profile extends StatefulWidget {
   const profile({super.key});
@@ -11,6 +13,8 @@ class profile extends StatefulWidget {
 }
 
 class _profileState extends State<profile> {
+  LoginController loginController = Get.put(LoginController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +62,18 @@ class _profileState extends State<profile> {
                             leading: Icon(Icons.location_on),
                             title: Text("Location by GPS"),
                             trailing: Icon(Icons.arrow_forward_ios_outlined),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              loginController.logOut();
+                            },
+                            child: ListTile(
+                              iconColor: Color(0xff88704e),
+                              minTileHeight: 75,
+                              leading: Icon(Icons.logout_outlined),
+                              title: Text("Log Out"),
+                              trailing: Icon(Icons.arrow_forward_ios_outlined),
+                            ),
                           ),
                         ],
                       ),

@@ -2,6 +2,8 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:hajj/controller/logincontroller.dart';
 
 class register extends StatefulWidget {
   const register({super.key});
@@ -12,6 +14,7 @@ class register extends StatefulWidget {
 
 class _registerState extends State<register> {
   bool passwordVisible = false;
+  LoginController loginController = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +49,7 @@ class _registerState extends State<register> {
                   ),
                   // Name Field
                   TextField(
+                    controller: loginController.name,
                     decoration: InputDecoration(
                       fillColor: Colors.white.withOpacity(0.3),
                       filled: true,
@@ -74,6 +78,7 @@ class _registerState extends State<register> {
                   ),
                   // Mobile Field
                   TextField(
+                    controller: loginController.mobile,
                     decoration: InputDecoration(
                       fillColor: Colors.white.withOpacity(0.3),
                       filled: true,
@@ -102,6 +107,7 @@ class _registerState extends State<register> {
                   ),
                   // Email Field
                   TextField(
+                    controller: loginController.r_email,
                     decoration: InputDecoration(
                       fillColor: Colors.white.withOpacity(0.3),
                       filled: true,
@@ -130,6 +136,7 @@ class _registerState extends State<register> {
                   ),
                   // Password Field
                   TextField(
+                    controller: loginController.r_password,
                     obscureText: !passwordVisible,
                     decoration: InputDecoration(
                       fillColor: Colors.white.withOpacity(0.3),
@@ -171,19 +178,25 @@ class _registerState extends State<register> {
                     height: 20,
                   ),
                   // Register Button
-                  Container(
-                    height: 45,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                        color: Color(0xff88704e),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: Center(
-                      child: Text(
-                        "Register",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold),
+                  InkWell(
+                    splashColor: Colors.white.withOpacity(0.1),
+                    onTap: () {
+                      loginController.register();
+                    },
+                    child: Container(
+                      height: 45,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                          color: Color(0xff88704e),
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      child: Center(
+                        child: Text(
+                          "Register",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ),
@@ -191,7 +204,7 @@ class _registerState extends State<register> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: const [
                   Text(
                     "Already have an account? ",
                     style: TextStyle(color: Colors.white, fontSize: 14),

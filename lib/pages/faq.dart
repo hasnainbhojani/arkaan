@@ -58,6 +58,7 @@ class _faqpageState extends State<faqpage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: InkWell(
+                  splashColor: Colors.white.withOpacity(0.1),
                   onTap: () {
                     Navigator.push(
                         context,
@@ -85,7 +86,7 @@ class _faqpageState extends State<faqpage> {
                         ),
                         Expanded(
                           child: Text(
-                            widget.title + " Query",
+                            "${widget.title} Query",
                             style: TextStyle(fontSize: 14, color: Colors.white),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
@@ -110,6 +111,7 @@ class _faqpageState extends State<faqpage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: InkWell(
+                  splashColor: Colors.white.withOpacity(0.1),
                   onTap: () {
                     Navigator.push(
                         context,
@@ -137,7 +139,7 @@ class _faqpageState extends State<faqpage> {
                         ),
                         Expanded(
                           child: Text(
-                            widget.title + " Query",
+                            "${widget.title} Query",
                             style: TextStyle(fontSize: 14, color: Colors.white),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,

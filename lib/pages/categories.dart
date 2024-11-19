@@ -2,7 +2,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:hajj/pages/hajjcategories.dart';
 import 'package:hajj/pages/umrah.dart';
 
@@ -20,6 +19,7 @@ class categories extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: InkWell(
+                splashColor: Colors.white.withOpacity(0.2),
                 onTap: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => const umrah()));
@@ -72,6 +72,7 @@ class categories extends StatelessWidget {
               padding: const EdgeInsets.only(
                   top: 5, bottom: 20, right: 20, left: 20),
               child: InkWell(
+                splashColor: Colors.white.withOpacity(0.2),
                 onTap: () {
                   Navigator.push(
                       context,

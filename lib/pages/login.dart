@@ -1,7 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, camel_case_types
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:hajj/controller/logincontroller.dart';
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -12,6 +13,7 @@ class login extends StatefulWidget {
 
 class _loginState extends State<login> {
   bool passwordVisible = false;
+  LoginController loginController = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,7 @@ class _loginState extends State<login> {
                 children: [
                   // Email Field
                   TextField(
+                    controller: loginController.email,
                     decoration: InputDecoration(
                       fillColor: Colors.white.withOpacity(0.3),
                       filled: true,
@@ -71,6 +74,7 @@ class _loginState extends State<login> {
                   ),
                   // Password Field
                   TextField(
+                    controller: loginController.password,
                     obscureText: !passwordVisible,
                     decoration: InputDecoration(
                       fillColor: Colors.white.withOpacity(0.3),
@@ -115,19 +119,25 @@ class _loginState extends State<login> {
                 style: TextStyle(color: Color(0xff88704e), fontSize: 14),
               ),
               // Login Button
-              Container(
-                height: 45,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    color: Color(0xff88704e),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: Center(
-                  child: Text(
-                    "Login",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold),
+              InkWell(
+                splashColor: Colors.white.withOpacity(0.1),
+                onTap: () {
+                  loginController.login();
+                },
+                child: Container(
+                  height: 45,
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                      color: Color(0xff88704e),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: Center(
+                    child: Text(
+                      "Login",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),
