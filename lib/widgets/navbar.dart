@@ -3,13 +3,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:hajj/pages/namazTime.dart';
 import 'package:hajj/pages/queries.dart';
 
-class Navbar extends StatelessWidget {
+class Navbar extends StatefulWidget {
   const Navbar({super.key});
 
+  @override
+  State<Navbar> createState() => _NavbarState();
+}
+
+class _NavbarState extends State<Navbar> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -48,6 +53,7 @@ class Navbar extends StatelessWidget {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => Namaztime()));
             },
+            
           ),
           Divider(
             thickness: 0.1,
@@ -61,9 +67,12 @@ class Navbar extends StatelessWidget {
             thickness: 0.1,
           ),
           ListTile(
-            leading: Icon(Icons.g_translate_outlined),
-            title: Text("Translate"),
-            onTap: () {},
+            leading: Icon(Icons.question_answer),
+            title: Text("Ask your Question"),
+            onTap: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Queries()));
+            },
           ),
           Divider(
             thickness: 0.1,
@@ -100,7 +109,7 @@ class Navbar extends StatelessWidget {
                       child: Text("No")),
                   TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop(true);
+                        exit(0);
                       },
                       child: Text("Yes")),
                 ],

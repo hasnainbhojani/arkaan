@@ -15,7 +15,7 @@ class _QueriesState extends State<Queries> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Send your Queries",
+          "Ask your Question",
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
@@ -23,7 +23,7 @@ class _QueriesState extends State<Queries> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             TextField(
@@ -38,8 +38,35 @@ class _QueriesState extends State<Queries> {
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   borderSide: BorderSide(color: Color(0xff88704e)),
                 ),
+                hintText: "Type your Name",
                 label: Text(
-                  "Type your Email",
+                  "Name",
+                  style: TextStyle(color: Colors.white),
+                ),
+                prefixIcon: Icon(Icons.person_outlined),
+                focusColor: Color(0xff88704e),
+              ),
+              keyboardType: TextInputType.name,
+              cursorColor: Color(0xff88704e),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            TextField(
+              decoration: InputDecoration(
+                fillColor: Colors.white.withOpacity(0.3),
+                filled: true,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  borderSide: BorderSide(color: Color(0xff88704e)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  borderSide: BorderSide(color: Color(0xff88704e)),
+                ),
+                hintText: "Type your Email",
+                label: Text(
+                  "Email",
                   style: TextStyle(color: Colors.white),
                 ),
                 prefixIcon: Icon(Icons.email_rounded),
@@ -63,8 +90,9 @@ class _QueriesState extends State<Queries> {
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   borderSide: BorderSide(color: Color(0xff88704e)),
                 ),
+                hintText: "Type your phone number",
                 label: Text(
-                  "Type your phone number",
+                  "Phone number",
                   style: TextStyle(color: Colors.white),
                 ),
                 prefixIcon: Icon(Icons.phone),

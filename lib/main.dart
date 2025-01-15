@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hajj/pages/home.dart';
 import 'package:hajj/pages/login.dart';
 import 'package:hajj/pages/register.dart';
 import 'package:hajj/pages/splash.dart';

@@ -1,10 +1,12 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:hajj/controller/logincontroller.dart';
 import 'package:hajj/pages/login.dart';
 import 'package:hajj/pages/register.dart';
+import 'package:hajj/widgets/bottomNavbar.dart';
 
 class splashScreen extends StatefulWidget {
   const splashScreen({super.key});
