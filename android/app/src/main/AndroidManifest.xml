@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
-        android:label="hajj"
+        android:usesCleartextTraffic="true"
+        android:label="Rehnuma-E-Hajj Ziyarat"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

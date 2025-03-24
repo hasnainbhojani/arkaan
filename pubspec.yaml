@@ -45,7 +45,16 @@ dependencies:
   font_awesome_flutter: ^10.7.0
   flutter_launcher_icons: ^0.14.1
   shared_preferences: ^2.3.3
-
+  http: ^1.2.2
+  skeletonizer: ^1.4.3
+  flutter_widget_from_html: ^0.15.3
+  expandable_text: ^2.3.0
+  rxdart: ^0.28.0
+  simple_html_css: ^5.0.0
+  cached_network_image: ^3.4.1
+  intl: ^0.20.2
+  flutter_svg: ^2.0.17
+  simple_gradient_text: ^1.3.0
 
 dev_dependencies:
   flutter_test:
@@ -103,15 +112,20 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
+    - family: Quranicfont
+      fonts:
+        - asset: fonts/Arabic Regular.ttf
+    - family: MuktaVaani
+      fonts:
+        - asset: fonts/MuktaVaani-Regular.ttf
+        - asset: fonts/MuktaVaani-Light.ttf
+        - asset: fonts/MuktaVaani-Medium.ttf
+    - family: KumarOne
+      fonts:
+        - asset: fonts/KumarOne-Regular.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #

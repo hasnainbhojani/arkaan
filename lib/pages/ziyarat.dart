@@ -1,10 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:hajj/pages/details.dart';
-import 'package:hajj/pages/infolist.dart';
+import 'package:hajj/pages/detailsSection.dart';
+import 'package:http/http.dart' as http;
+import 'package:hajj/pages/favourites.dart'; // Import the favorites utility
 
 class Ziyarat extends StatefulWidget {
   const Ziyarat({super.key});
@@ -14,76 +13,147 @@ class Ziyarat extends StatefulWidget {
 }
 
 class _ZiyaratState extends State<Ziyarat> {
-  NavigationRailLabelType labelType = NavigationRailLabelType.none;
-  int _selectedIndex = 1;
-  List _items = [];
+  List _itemsJson = [];
+  Set<String> favoriteIds = {}; // Store favorite IDs
 
-  Future<void> readJson() async {
-    final String response =
-        await rootBundle.loadString("assets/video/example.json");
-    final data = await json.decode(response);
-
-    setState(() {
-      _items = data["items"];
-    });
-  }
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
-    // TODO: implement initState
-    readJson();
     super.initState();
+    fetchJson();
+    _loadFavorites();
+  }
+
+  Future<void> fetchJson() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await http
+          .get(
+              Uri.parse("http://famtechglobal.com/arkan/public/get_content/41"))
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _itemsJson = data["data"] ?? [];
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = "Server error: ${response.statusCode}";
+          _isLoading = false;
+        });
+      }
+    } on TimeoutException {
+      setState(() {
+        _errorMessage = "Request timed out. Check your internet connection";
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Something went wrong. Try again!!";
+        _isLoading = false;
+      });
+    }
+  }
+
+  /// Load favorite IDs from SharedPreferences
+  Future<void> _loadFavorites() async {
+    List<String> favorites = await Favourites.getFavorites();
+    setState(() {
+      favoriteIds = favorites.toSet();
+    });
+  }
+
+  /// Toggle favorite status
+  Future<void> _toggleFavorite(String id) async {
+    if (favoriteIds.contains(id)) {
+      await Favourites.removeFavorite(id);
+    } else {
+      await Favourites.addFavorite(id);
+    }
+    _loadFavorites(); // Refresh UI
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 1,
-          child: ListView.builder(
-            itemCount: 10,
-            itemBuilder: (context, index) {
-              return ListTile(
-                leading: Icon(Icons.ac_unit),
-              );
-            },
-          ),
-        ),
-        Expanded(flex: 5, child: Infolist(selectedIndex: _selectedIndex))
-      ],
-    );
-  }
-}
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-/*
-Row(
-      children: [
-        Column(
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    width: 70,
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.abc,
-                      ),
-                      tileColor: Colors.blue,
-                      selectedColor: Colors.amber,
-                      selected: true,
-                    ),
-                  ),
-                );
-              },
+            const Icon(Icons.error_outline, size: 35, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              _errorMessage!,
+              style: const TextStyle(fontSize: 18, color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: fetchJson,
+              child: const Text("Retry"),
             ),
           ],
         ),
-        Expanded(child: Infolist(selectedIndex: _selectedIndex))
-      ],
-    );
-*/
+      );
+    }
+
+    return _itemsJson.isNotEmpty
+        ? ListView.builder(
+            padding: const EdgeInsets.all(8),
+            itemCount: _itemsJson.length,
+            itemBuilder: (context, index) {
+              String itemId = _itemsJson[index]["id"].toString();
+              bool isFavorite = favoriteIds.contains(itemId);
+
+              return Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              detailSection(id: _itemsJson[index]["id"]),
+                        ),
+                      );
+                    },
+                    title: Text(
+                      _itemsJson[index]["product_name"],
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(
+                        isFavorite ? Icons.star : Icons.star_border_outlined,
+                        color: isFavorite ? Colors.yellow : Colors.black,
+                      ),
+                      onPressed: () => _toggleFavorite(itemId),
+                    ),
+                  ),
+                ),
+              );
+            },
+          )
+        : const Center(
+            child: Text(
+            "No data available",
+            style: TextStyle(color: Colors.white),
+          ));
+  }
+}

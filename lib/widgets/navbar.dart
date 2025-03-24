@@ -1,8 +1,9 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hajj/pages/contactUs.dart';
+import 'package:hajj/pages/favourites.dart';
 
 import 'package:hajj/pages/namazTime.dart';
 import 'package:hajj/pages/queries.dart';
@@ -51,9 +52,8 @@ class _NavbarState extends State<Navbar> {
             title: Text("Prayer Times"),
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => Namaztime()));
+                  MaterialPageRoute(builder: (context) => PrayerTimesScreen()));
             },
-            
           ),
           Divider(
             thickness: 0.1,
@@ -61,7 +61,10 @@ class _NavbarState extends State<Navbar> {
           ListTile(
             leading: Icon(Icons.favorite),
             title: Text("Favourites"),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => FavoritesPage()));
+            },
           ),
           Divider(
             thickness: 0.1,
@@ -78,17 +81,12 @@ class _NavbarState extends State<Navbar> {
             thickness: 0.1,
           ),
           ListTile(
-            leading: Icon(Icons.mail_rounded),
-            title: Text("Contact Us"),
-            onTap: () {},
-          ),
-          Divider(
-            thickness: 0.1,
-          ),
-          ListTile(
-            leading: Icon(Icons.share),
-            title: Text("Share App"),
-            onTap: () {},
+            leading: Icon(Icons.info_outline),
+            title: Text("About Us"),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ContactUs()));
+            },
           ),
           Divider(
             thickness: 0.1,
@@ -98,21 +96,27 @@ class _NavbarState extends State<Navbar> {
             leading: Icon(Icons.exit_to_app),
             title: Text("Exit"),
             onTap: () {
-              AlertDialog(
-                title: Text("Close App"),
-                content: Text("Do you really want to close app?"),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: Text("No")),
-                  TextButton(
-                      onPressed: () {
-                        exit(0);
-                      },
-                      child: Text("Yes")),
-                ],
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    backgroundColor: Colors.white,
+                    title: Text("Close App"),
+                    content: Text("Do you really want to close app?"),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(false);
+                          },
+                          child: Text("No")),
+                      TextButton(
+                          onPressed: () {
+                            SystemNavigator.pop();
+                          },
+                          child: Text("Yes")),
+                    ],
+                  );
+                },
               );
             },
           ),
