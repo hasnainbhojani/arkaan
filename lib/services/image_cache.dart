@@ -102,41 +102,6 @@ class ImageCachee {
     );
   }
 
-  // static Widget cachedImage(String imagePath, {double? width, double? height}) {
-  //   return FutureBuilder<bool>(
-  //     future: _isConnected(),
-  //     builder: (context, snapshot) {
-  //       final isOnline = snapshot.data ?? false;
-  //       return FutureBuilder<File>(
-  //         future: _getCachedFile(imagePath),
-  //         builder: (context, fileSnapshot) {
-  //           if (fileSnapshot.hasData && fileSnapshot.data!.existsSync()) {
-  //             return _buildImageWidget(fileSnapshot.data!, width, height);
-  //           }
-
-  //           if (!isOnline) {
-  //             return _buildPlaceholder(width, height);
-  //           }
-
-  //           return FutureBuilder<void>(
-  //             future: cacheNetworkImage(imagePath),
-  //             builder: (context, cacheSnapshot) {
-  //               if (cacheSnapshot.connectionState == ConnectionState.done) {
-  //                 if (cacheSnapshot.hasError) {
-  //                   return _buildPlaceholder(width, height);
-  //                 }
-  //                 return _buildImageWidget(
-  //                     File(fileSnapshot.data!.path), width, height);
-  //               }
-  //               return _buildProgressIndicator(width, height);
-  //             },
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
   static Future<File> _getCachedFile(String imagePath) async {
     final isSvg = imagePath.toLowerCase().endsWith('.svg');
     final filename = path.basename(imagePath);
@@ -157,8 +122,8 @@ class ImageCachee {
         file,
         width: width,
         height: height,
-        color: color, // Directly use color property for SVG
-        placeholderBuilder: (context) => _buildProgressIndicator(width, height),
+        color: color,
+        placeholderBuilder: (context) => SizedBox(),
       );
     }
 
@@ -194,8 +159,7 @@ class ImageCachee {
     return Container(
       width: width,
       height: height,
-      color: Colors.grey[200],
-      child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+      color: Colors.transparent,
     );
   }
 

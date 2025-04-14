@@ -125,31 +125,4 @@ class _SectionsState extends State<Sections> {
       },
     );
   }
-
-  // Widget _buildCategoryList(List<HajjCategory> categories) {
-  //   return ListView.builder(
-  //     padding: const EdgeInsets.only(top: 25),
-  //     itemCount: categories.length,
-  //     itemBuilder: (context, index) {
-  //       final category = categories[index];
-  //       return ListTile(
-  //         onTap: () {
-  //           setState(() => _selectedCategoryIndex = index);
-  //           _idController.add(categories[index].id);
-  //         },
-  //         selected: _selectedCategoryIndex == index,
-  //         contentPadding: const EdgeInsets.only(bottom: 5),
-  //         visualDensity: VisualDensity.compact,
-  //         title: ImageCachee.cachedImage(
-  //           category.image,
-  //           height: 30,
-  //           width: 30,
-  //           // color: _selectedCategoryIndex == index
-  //           //      ? Colors.amber
-  //           //      : Colors.white,
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 }
