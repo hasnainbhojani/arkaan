@@ -103,21 +103,30 @@ class _DetailSectionState extends State<DetailSection> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Center(
-                    child: GradientText(
+                    child: Text(
                       widget.item.title,
-                      style: TextStyle(fontSize: textsize),
-                      colors: [
-                        Color(0xFFFFD700), // Gold
-                        Color(0xFFFFE135), // Lighter Gold
-                        Color(0xFFFFC107), // Darker Gold/Amber
-                      ],
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: textsize,
+                          color: Color(0xFFFFC107),
+                          fontWeight: FontWeight.w700),
+                      // colors: [
+                      //   Color(0xFFFFD700), // Gold
+                      //   // Lighter Gold
+                      //   Color(0xFFFFC107), // Darker Gold/Amber
+                      // ],
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ImageCachee.cachedImage(
-                    widget.item.image,
-                    height: 200,
-                    //fit: BoxFit.cover,
+                  ClipRRect(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10)),
+                    child: ImageCachee.cachedImage(
+                      widget.item.image,
+                      height: 200,
+                      //fit: BoxFit.cover,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Padding(

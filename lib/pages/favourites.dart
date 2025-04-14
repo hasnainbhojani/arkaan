@@ -67,8 +67,13 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  leading: ImageCachee.cachedImage(item.image,
-                      width: 40, height: 40),
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10)),
+                    child: ImageCachee.cachedImage(item.image,
+                        width: 40, height: 40),
+                  ),
                   title: Text(item.title),
                   trailing: IconButton(
                     icon: const Icon(Icons.star, color: Colors.amber),
