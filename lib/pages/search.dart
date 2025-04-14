@@ -1,9 +1,14 @@
+// search_page.dart
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:hajj/config/api_config.dart';
+import '../models/hajj_data.dart';
+import 'detailsSection.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final Map<String, HajjDataList> allData;
+
+  const SearchPage({super.key, required this.allData});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -11,103 +16,114 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<dynamic> _searchResults = [];
-  List<dynamic> _allItems = [];
-  bool _isLoading = false;
+  List<SearchResult> _searchResults = [];
 
-// First function: Fetch all subcategories (IDs)
-  Future<void> _fetchInitialData() async {
-    setState(() {
-      _isLoading = true;
+  String styleHtmlText(String htmlText) {
+    // Apply styles dynamically
+    return htmlText.replaceAllMapped(RegExp(r'[\u0600-\u06FF]+'), (match) {
+      // Arabic Text
+      return '<span style="font-family: Quranicfont, sans-serif; font-size:20; line-height: 2.0; ">${match.group(0)}</span>';
+    }).replaceAllMapped(RegExp(r'[\u0A80-\u0AFF]+'), (match) {
+      // Gujarati Text
+      return '<span style="font-family: MuktaVaani, font-size:20, sans-serif;">${match.group(0)}</span>';
     });
-
-    try {
-      final response = await http.get(
-        Uri.parse("http://famtechglobal.com/arkan/public/get_subcategory/1"),
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        _allItems = data["data"] ?? [];
-        // Pre-fetch content for all IDs (optional)
-        await _fetchContentForAllIds();
-      }
-    } catch (e) {
-      print("Error fetching initial data: $e");
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
-// Second function: Fetch content for a specific ID
-  Future<dynamic> _fetchContentForId(int id) async {
-    try {
-      final response = await http.get(
-        Uri.parse("http://famtechglobal.com/arkan/public/get_content/$id"),
-      );
+  void _performSearch(String query) {
+    final results = <SearchResult>[];
+    final cleanQuery = query.trim().toLowerCase();
 
-      if (response.statusCode == 200) {
-        print(response.body);
-        return json.decode(response.body);
-      }
-    } catch (e) {
-      print("Error fetching content for ID $id: $e");
-    }
-    return null;
-  }
-
-// Fetch content for all IDs
-  Future<void> _fetchContentForAllIds() async {
-    List<Future<dynamic>> futures = [];
-    for (var item in _allItems) {
-      futures.add(_fetchContentForId(item["id"]));
-    }
-    // Wait for all requests to complete
-    final results = await Future.wait(futures);
-    _searchResults = results.where((result) => result != null).toList();
-  }
-
-  void _performSearch(String query) async {
-    if (query.isEmpty) {
-      setState(() {
-        _searchResults = [];
-      });
+    if (cleanQuery.isEmpty) {
+      setState(() => _searchResults = []);
       return;
     }
 
-    setState(() {
-      _isLoading = true;
+    widget.allData.forEach((categoryKey, hajjData) {
+      final categoryConfig = ApiConfig.endpoints.firstWhere(
+        (e) => e['key'] == categoryKey,
+        orElse: () => {'name': 'Unknown Category'},
+      );
+
+      for (final category in hajjData.categories) {
+        // Search category name
+        _addResultIfMatches(
+          category.name,
+          categoryConfig['name']!,
+          category,
+          null,
+          null,
+          results,
+          cleanQuery,
+        );
+
+        // Search items
+        for (final item in category.items) {
+          _addResultIfMatches(
+            item.title,
+            categoryConfig['name']!,
+            category,
+            item,
+            null,
+            results,
+            cleanQuery,
+          );
+          _addResultIfMatches(
+            item.content,
+            categoryConfig['name']!,
+            category,
+            item,
+            null,
+            results,
+            cleanQuery,
+          );
+
+          // Search sub-items
+          for (final subItem in item.subItems) {
+            _addResultIfMatches(
+              subItem.title,
+              categoryConfig['name']!,
+              category,
+              item,
+              subItem,
+              results,
+              cleanQuery,
+            );
+            _addResultIfMatches(
+              subItem.description,
+              categoryConfig['name']!,
+              category,
+              item,
+              subItem,
+              results,
+              cleanQuery,
+            );
+          }
+        }
+      }
     });
 
-    // Filter results locally (or fetch from API)
-    final filtered = _allItems.where((item) {
-      final productName = item["product_name"]?.toString().toLowerCase() ?? "";
-      return productName.contains(query.toLowerCase());
-    }).toList();
-
-    // If you need to fetch from API for each ID:
-    // await _fetchContentForAllIds();
-    // Then filter _searchResults
-
-    setState(() {
-      _searchResults = filtered;
-      _isLoading = false;
-    });
+    setState(() => _searchResults = results);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    // Fetch all items when the page initializes
-    _fetchInitialData();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void _addResultIfMatches(
+    String text,
+    String mainCategory,
+    HajjCategory category,
+    HajjItem? item,
+    HajjSubItem? subItem,
+    List<SearchResult> results,
+    String query,
+  ) {
+    if (text.toLowerCase().contains(query)) {
+      results.add(SearchResult(
+        matchedText: text,
+        mainCategory: mainCategory,
+        subCategory: category.name,
+        category: category,
+        item: item,
+        subItem: subItem,
+      ));
+    }
   }
 
   @override
@@ -117,37 +133,172 @@ class _SearchPageState extends State<SearchPage> {
         title: TextField(
           controller: _searchController,
           decoration: const InputDecoration(
-            hintText: "Search...",
-            focusColor: Colors.white,
-            suffixIcon: Icon(
-              Icons.search,
-              color: Colors.white,
-            ),
+            hintText: 'Search in Gujarati or Arabic...',
+            border: InputBorder.none,
           ),
-          onChanged: (query) {
-            _performSearch(query);
-          },
+          onChanged: _performSearch,
+          autofocus: true,
+          style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Column(
+      body: _buildSearchResults(),
+    );
+  }
+
+  Widget _buildSearchResults() {
+    if (_searchController.text.isEmpty) {
+      return const Center(
+          child: Text(
+        'Start typing to search',
+        style: TextStyle(color: Colors.white),
+      ));
+    }
+
+    if (_searchResults.isEmpty) {
+      return const Center(
+          child: Text(
+        'No results found',
+        style: TextStyle(color: Colors.white),
+      ));
+    }
+
+    return ListView.builder(
+      itemCount: _searchResults.length,
+      itemBuilder: (context, index) {
+        final result = _searchResults[index];
+        return Card(
+          margin: const EdgeInsets.all(8),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            onTap: () => _navigateToResult(result),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  result.subCategory,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.blue,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildHighlightedText(
+                    result.matchedText, _searchController.text),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHighlightedText(String fullText, String query) {
+    final text = fullText;
+    final queryLower = query.toLowerCase();
+    final startIndex = text.toLowerCase().indexOf(queryLower);
+    const snippetLength = 100;
+
+    String snippet;
+    if (startIndex == -1) {
+      snippet = text.length > snippetLength
+          ? '${text.substring(0, snippetLength)}...'
+          : text;
+      return HtmlWidget(styleHtmlText(snippet));
+    }
+
+    final endIndex = startIndex + query.length;
+    final startSnippet = startIndex - 20 > 0 ? startIndex - 20 : 0;
+    final endSnippet =
+        endIndex + 80 < text.length ? endIndex + 80 : text.length;
+
+    snippet = text.substring(startSnippet, endSnippet);
+    if (startSnippet > 0) snippet = '...$snippet';
+    if (endSnippet < text.length) snippet = '$snippet...';
+
+    final relativeStart =
+        startIndex - startSnippet + (startSnippet > 0 ? 3 : 0);
+    final relativeEnd = relativeStart + query.length;
+
+    return Card(
+      color: Colors.grey.shade700,
+      child: Column(
         children: [
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _searchResults.isEmpty
-                  ? const Center(child: Text("No results found"))
-                  : ListView.builder(
-                      itemCount: _searchResults.length,
-                      itemBuilder: (context, index) {
-                        final item = _searchResults[index];
-                        return ListTile(
-                          title: Text(item["product_name"] ?? "No Name"),
-                          subtitle:
-                              Text(item["description"] ?? "No Description"),
-                        );
-                      },
-                    ),
+          HtmlWidget(
+            styleHtmlText(snippet.substring(0, relativeStart)),
+            textStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+          HtmlWidget(
+            styleHtmlText(snippet.substring(relativeStart, relativeEnd)),
+            textStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              backgroundColor: Colors.red.shade300,
+              fontSize: 20,
+            ),
+          ),
+          HtmlWidget(
+            styleHtmlText(snippet.substring(relativeEnd)),
+            textStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
         ],
       ),
     );
   }
+
+  void _navigateToResult(SearchResult result) {
+    if (result.subItem != null && result.item != null) {
+      final subItemIndex = result.item!.subItems.indexOf(result.subItem!);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailSection(
+            item: result.item!,
+            subItemIndex: subItemIndex,
+          ),
+        ),
+      );
+    } else if (result.item != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailSection(item: result.item!),
+        ),
+      );
+    } else if (result.category != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailSection(
+            item: result.category!.items.first,
+          ),
+        ),
+      );
+    }
+  }
+}
+
+class SearchResult {
+  final String matchedText;
+  final String mainCategory;
+  final String subCategory;
+  final HajjCategory? category;
+  final HajjItem? item;
+  final HajjSubItem? subItem;
+
+  SearchResult({
+    required this.matchedText,
+    required this.mainCategory,
+    required this.subCategory,
+    this.category,
+    this.item,
+    this.subItem,
+  });
 }

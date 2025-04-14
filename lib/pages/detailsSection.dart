@@ -1,75 +1,27 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:hajj/models/hajj_data.dart';
+import 'package:hajj/services/image_cache.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
-class detailSection extends StatefulWidget {
-  var id;
-
-  detailSection({super.key, required this.id});
+class DetailSection extends StatefulWidget {
+  final HajjItem item;
+  final int? subItemIndex;
+  const DetailSection({super.key, required this.item, this.subItemIndex});
 
   @override
-  State<detailSection> createState() => _detailSectionState();
+  State<DetailSection> createState() => _DetailSectionState();
 }
 
-class _detailSectionState extends State<detailSection> {
-  late SharedPreferences prefs;
-  List _itemsJson = [];
-  List _itemsJsonn = [];
+class _DetailSectionState extends State<DetailSection> {
+  late List<bool> _isExpanded;
   var textsize;
-  bool isLoading = true;
-  List<bool> _isExpanded = [];
-
-  Future<void> fetchJson() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    var link =
-        "http://famtechglobal.com/arkan/public/get_content_details/${widget.id}";
-    try {
-      final response = await http.get(Uri.parse(link));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          if (data["data"] is List) {
-            _itemsJson = data["data"];
-            _itemsJsonn = data["content_data"];
-          } else if (data["data"] is Map) {
-            _itemsJson = [data["data"]];
-            _itemsJsonn = [data["content_data"]];
-          }
-
-          // Initialize _isExpanded with the correct length
-          if (_itemsJsonn.isNotEmpty && _itemsJsonn[0] is List) {
-            _isExpanded = List.filled(_itemsJsonn[0].length, false);
-          } else {
-            _isExpanded = [];
-          }
-
-          isLoading = false;
-        });
-      } else {
-        print("Error fetching data");
-      }
-    } catch (e) {
-      print("Exception: $e");
-    }
-
-    if (_itemsJsonn.isEmpty) {
-      Timer(Duration(seconds: 5), () {
-        fetchJson();
-      });
-    }
-  }
+  late SharedPreferences prefs;
 
   initPrefs() async {
     prefs = await SharedPreferences.getInstance();
-    textsize = prefs.getDouble('textsize') ?? 22.0;
+    textsize = prefs.getDouble('textsize') ?? 20.0;
     setState(() {});
   }
 
@@ -88,14 +40,7 @@ class _detailSectionState extends State<detailSection> {
   void initState() {
     super.initState();
     initPrefs();
-    fetchJson();
-  }
-
-// Initialize _isExpanded list when data is fetched
-  void initializeExpansionState() {
-    setState(() {
-      _isExpanded = List.generate(_itemsJsonn[0].length, (index) => false);
-    });
+    _isExpanded = List<bool>.filled(widget.item.subItems.length, false);
   }
 
   @override
@@ -105,7 +50,11 @@ class _detailSectionState extends State<detailSection> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Image.asset("assets/image/arkan.png", width: 100),
+            Image.asset(
+              "assets/image/arkan.png",
+              width: 75,
+              height: 16,
+            ),
             Row(
               children: [
                 InkWell(
@@ -136,147 +85,107 @@ class _detailSectionState extends State<detailSection> {
           ],
         ),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ListView(
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 60,
-                  padding: EdgeInsets.all(2),
-                  child: Image.asset("assets/image/sticker.png"),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Container(
-                    decoration: BoxDecoration(color: Colors.white),
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(20),
-                    child: _itemsJson.isNotEmpty
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Center(
-                                child: GradientText(
-                                  _itemsJson[0]["product_name"].toString(),
-                                  style: TextStyle(
-                                    fontSize: textsize,
-                                  ),
-                                  colors: [
-                                    Color(0xFFFFD700), // Gold
-                                    Color(0xFFFFE135), // Lighter Gold
-                                    Color(0xFFFFC107), // Darker Gold/Amber
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: FittedBox(
-                                  fit: BoxFit.cover,
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        "http://famtechglobal.com/arkan/public/images/${_itemsJson[0]["image"]}",
-                                    placeholder: (context, url) => Center(
-                                        child: CircularProgressIndicator()),
-                                    errorWidget: (context, url, error) =>
-                                        const Text("Image not available"),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              Center(
-                                child: HtmlWidget(
-                                  styleHtmlText(_itemsJson[0]["content"] ?? ""),
-                                  textStyle: TextStyle(fontSize: textsize),
-                                ),
-                              ),
-                              _itemsJsonn.isNotEmpty
-                                  ? ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: _itemsJsonn[0].length,
-                                      itemBuilder: (context, index) {
-                                        var item = _itemsJsonn[0][index];
-                                        return ExpansionTile(
-                                          tilePadding: EdgeInsets.zero,
-                                          iconColor: Colors.white,
-                                          leading: Icon(
-                                            _isExpanded[index]
-                                                ? Icons
-                                                    .indeterminate_check_box_outlined
-                                                : Icons.add_box_outlined,
-                                            color: Colors.black,
-                                          ),
-                                          title: Text(
-                                            item['sub_title'] ?? 'Untitled',
-                                            style: TextStyle(
-                                              fontSize: textsize,
-                                              color: Colors.black,
-                                              fontWeight: _isExpanded[index]
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
-                                            ),
-                                          ),
-                                          initiallyExpanded: _isExpanded[index],
-                                          onExpansionChanged: (expanded) {
-                                            setState(() {
-                                              _isExpanded[index] = expanded;
-                                            });
-                                          },
-                                          children: [
-                                            if (item['sub_image'] != null)
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                  child: FittedBox(
-                                                    fit: BoxFit.cover,
-                                                    child: CachedNetworkImage(
-                                                        imageUrl:
-                                                            "http://famtechglobal.com/arkan/public/images/${item["sub_image"]}",
-                                                        placeholder: (context,
-                                                                url) =>
-                                                            Center(
-                                                                child:
-                                                                    CircularProgressIndicator()),
-                                                        errorWidget: (context,
-                                                                url, error) =>
-                                                            const Text("")),
-                                                  ),
-                                                ),
-                                              ),
-                                            if (item['description'] != null)
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: HtmlWidget(
-                                                  styleHtmlText(
-                                                      item["description"] ??
-                                                          ""),
-                                                  textStyle: TextStyle(
-                                                      fontSize: textsize - 2,
-                                                      color: Colors.black),
-                                                ),
-                                              ),
-                                          ],
-                                        );
-                                      },
-                                    )
-                                  : Center(
-                                      child: Text(
-                                      "No Data Found!",
-                                      style: TextStyle(color: Colors.white),
-                                    )),
-                            ],
-                          )
-                        : Center(child: Text("No Data Found!!")),
+      body: ListView(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: 60,
+            padding: EdgeInsets.all(2),
+            child: Image.asset("assets/image/sticker.png"),
+          ),
+          Padding(
+            padding: EdgeInsets.all(4.0),
+            child: Container(
+              decoration: BoxDecoration(color: Colors.white),
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                    child: GradientText(
+                      widget.item.title,
+                      style: TextStyle(fontSize: textsize),
+                      colors: [
+                        Color(0xFFFFD700), // Gold
+                        Color(0xFFFFE135), // Lighter Gold
+                        Color(0xFFFFC107), // Darker Gold/Amber
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  ImageCachee.cachedImage(
+                    widget.item.image,
+                    height: 200,
+                    //fit: BoxFit.cover,
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: HtmlWidget(
+                      styleHtmlText(widget.item.content),
+                      textStyle: TextStyle(fontSize: textsize),
+                    ),
+                  ),
+                  _buildSubItems(),
+                ],
+              ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubItems() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: widget.item.subItems.length,
+      itemBuilder: (context, index) {
+        final subItem = widget.item.subItems[index];
+        return ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          iconColor: Colors.white,
+          leading: Icon(
+              _isExpanded[index]
+                  ? Icons.indeterminate_check_box_outlined
+                  : Icons.add_box_outlined,
+              color: Colors.black),
+          title: Text(
+            subItem.title,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: textsize,
+              fontWeight:
+                  _isExpanded[index] ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          initiallyExpanded: _isExpanded[index],
+          onExpansionChanged: (expanded) {
+            setState(() => _isExpanded[index] = expanded);
+          },
+          children: [
+            if (subItem.image != null)
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: ImageCachee.cachedImage(
+                  subItem.image!,
+                  height: 150,
+                  //fit: BoxFit.cover,
+                ),
+              ),
+            if (subItem.description.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: HtmlWidget(
+                  styleHtmlText(subItem.description),
+                  textStyle: TextStyle(fontSize: textsize),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

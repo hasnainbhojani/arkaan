@@ -1,14 +1,13 @@
-// ignore_for_file: prefer_const_constructors, unused_import
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hajj/pages/login.dart';
-import 'package:hajj/pages/register.dart';
 import 'package:hajj/pages/splash.dart';
-import 'package:hajj/widgets/bottomNavbar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-void main() {
+import 'package:hive_flutter/hive_flutter.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
   runApp(const MyApp());
 }
 
@@ -19,17 +18,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Rehnuma-E-Hajj Ziyarat',
-      initialRoute: "/navMenu",
-      routes: {
-        '/navMenu': (context) => const navMenu(),
-        '/splash': (context) => const splashScreen(),
-      },
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(),
         scaffoldBackgroundColor: Colors.black,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
@@ -37,7 +31,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.dark(),
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent),
-      home: const navMenu(),
+      home: const splashScreen(),
     );
   }
 }

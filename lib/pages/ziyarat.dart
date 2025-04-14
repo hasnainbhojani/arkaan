@@ -1,159 +1,365 @@
 import 'dart:async';
-import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:hajj/pages/detailsSection.dart';
-import 'package:http/http.dart' as http;
-import 'package:hajj/pages/favourites.dart'; // Import the favorites utility
+import 'package:hajj/models/hajj_data.dart';
+import 'package:hajj/pages/indexSection.dart';
+import 'package:hajj/pages/sections.dart';
+import 'package:hajj/services/data_service.dart';
 
 class Ziyarat extends StatefulWidget {
-  const Ziyarat({super.key});
+  final HajjDataList category5Data;
+  final HajjDataList category6Data;
+
+  const Ziyarat({
+    super.key,
+    required this.category5Data,
+    required this.category6Data,
+  });
 
   @override
   State<Ziyarat> createState() => _ZiyaratState();
 }
 
 class _ZiyaratState extends State<Ziyarat> {
-  List _itemsJson = [];
-  Set<String> favoriteIds = {}; // Store favorite IDs
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          // Modified cards section
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildCategoryCard(
+                    context,
+                    widget.category5Data,
+                    "assets/image/ziyarat.jpg",
+                    "Ziyarat",
+                    0,
+                  ),
+                  _buildCategoryCard(
+                    context,
+                    widget.category6Data,
+                    "assets/image/dua.jpg",
+                    "Dua",
+                    2,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  bool _isLoading = true;
-  String? _errorMessage;
+  Widget _buildCategoryCard(
+    BuildContext context,
+    HajjDataList data,
+    String imagePath,
+    String title,
+    int initialIndex,
+  ) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ZiyaratDuaScreen(
+              hajjData: data,
+              initialIndex: initialIndex,
+              title: title,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.star_border_outlined, size: 18),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            const Divider(color: Colors.black, height: 1),
+            Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+              height: 150,
+              width: double.infinity,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ZiyaratDuaScreen extends StatefulWidget {
+  final HajjDataList hajjData;
+  var title;
+
+  final int initialIndex;
+  ZiyaratDuaScreen(
+      {super.key,
+      required this.hajjData,
+      required this.title,
+      this.initialIndex = 0});
+
+  @override
+  State<ZiyaratDuaScreen> createState() => _ZiyaratDuaScreenState();
+}
+
+class _ZiyaratDuaScreenState extends State<ZiyaratDuaScreen> {
+  late int _selectedCategoryIndex;
+  final _idController = StreamController<int>.broadcast();
 
   @override
   void initState() {
     super.initState();
-    fetchJson();
-    _loadFavorites();
-  }
-
-  Future<void> fetchJson() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final response = await http
-          .get(
-              Uri.parse("http://famtechglobal.com/arkan/public/get_content/41"))
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          _itemsJson = data["data"] ?? [];
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _errorMessage = "Server error: ${response.statusCode}";
-          _isLoading = false;
-        });
-      }
-    } on TimeoutException {
-      setState(() {
-        _errorMessage = "Request timed out. Check your internet connection";
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = "Something went wrong. Try again!!";
-        _isLoading = false;
-      });
-    }
-  }
-
-  /// Load favorite IDs from SharedPreferences
-  Future<void> _loadFavorites() async {
-    List<String> favorites = await Favourites.getFavorites();
-    setState(() {
-      favoriteIds = favorites.toSet();
-    });
-  }
-
-  /// Toggle favorite status
-  Future<void> _toggleFavorite(String id) async {
-    if (favoriteIds.contains(id)) {
-      await Favourites.removeFavorite(id);
-    } else {
-      await Favourites.addFavorite(id);
-    }
-    _loadFavorites(); // Refresh UI
+    _selectedCategoryIndex = widget.initialIndex;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return Scaffold(
+      appBar: AppBar(),
+      body: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+        // Sticker
+        Container(
+            width: MediaQuery.of(context).size.width,
+            height: 60,
+            padding: EdgeInsets.all(2),
+            child: Image.asset("assets/image/sticker.png")),
 
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        // Tawaf Dua & Saee Dua Buttons
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //   crossAxisAlignment: CrossAxisAlignment.center,
+        //   children: [
+        //       InkWell(
+        //         onTap: () {
+        //           _hajjData.then((data) {
+        //             final category6Data = data['category6'];
+        //             if (category6Data != null) {
+        //               Navigator.push(
+        //                 context,
+        //                 MaterialPageRoute(
+        //                   builder: (context) => Dua(
+        //                     name: "Tawaf Dua",
+        //                     id: 0,
+        //                     hajjData: category6Data, // Pass category6 data
+        //                   ),
+        //                 ),
+        //               );
+        //             }
+        //           });
+        //         },
+        //       child: Row(
+        //         children: [
+        //           Container(
+        //               child: Image.asset(
+        //             "assets/image/kaaba1.png",
+        //             fit: BoxFit.cover,
+        //             height: 26,
+        //             width: 26,
+        //             alignment: Alignment.topCenter,
+        //           )),
+        //           SizedBox(
+        //             width: 10,
+        //           ),
+        //           Text(
+        //             "Tawaf Dua",
+        //             style: TextStyle(color: Colors.white, fontSize: 12),
+        //           )
+        //         ],
+        //       ),
+        //     ),
+        //     InkWell(
+        //       onTap: () {},
+        //       child: Row(
+        //         children: [
+        //           Container(
+        //               child: Image.asset(
+        //             "assets/image/mountain1.png",
+        //             fit: BoxFit.cover,
+        //             height: 26,
+        //             width: 26,
+        //           )),
+        //           SizedBox(
+        //             width: 10,
+        //           ),
+        //           Text(
+        //             "Sa`ee Dua",
+        //             style: TextStyle(color: Colors.white, fontSize: 12),
+        //           )
+        //         ],
+        //       ),
+        //     ),
+        //   ],
+        // ),
+        // SizedBox(
+        //   height: 5,
+        // ),
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Content Section
+              Expanded(
+                flex: 5,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: IndexSection(
+                    category:
+                        widget.hajjData.categories[_selectedCategoryIndex],
+                    idStream: _idController.stream,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ]),
+    );
+  }
+
+  void _refreshData(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => const AlertDialog(
+        content: Row(
           children: [
-            const Icon(Icons.error_outline, size: 35, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              _errorMessage!,
-              style: const TextStyle(fontSize: 18, color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: fetchJson,
-              child: const Text("Retry"),
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Text("Refreshing Data..."),
+          ],
+        ),
+      ),
+    );
+
+    DataService.fetchAllData().then((newData) {
+      Navigator.pop(context); // Close loading dialog
+      setState(() {
+        _selectedCategoryIndex = 0;
+      });
+    }).catchError((error) {
+      Navigator.pop(context); // Close loading dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: Text('Failed to refresh: $error'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
             ),
           ],
         ),
       );
-    }
+    });
+  }
 
-    return _itemsJson.isNotEmpty
-        ? ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: _itemsJson.length,
-            itemBuilder: (context, index) {
-              String itemId = _itemsJson[index]["id"].toString();
-              bool isFavorite = favoriteIds.contains(itemId);
+  Widget _buildCategoryCard(
+    BuildContext context,
+    HajjDataList data,
+    String imagePath,
+    String title,
+  ) {
+    final hasData = data.categories.isNotEmpty;
 
-              return Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              detailSection(id: _itemsJson[index]["id"]),
-                        ),
-                      );
-                    },
-                    title: Text(
-                      _itemsJson[index]["product_name"],
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(
-                        isFavorite ? Icons.star : Icons.star_border_outlined,
-                        color: isFavorite ? Colors.yellow : Colors.black,
-                      ),
-                      onPressed: () => _toggleFavorite(itemId),
-                    ),
+    return InkWell(
+      onTap: hasData
+          ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Sections(
+                    hajjData: data,
                   ),
                 ),
               );
-            },
-          )
-        : const Center(
-            child: Text(
-            "No data available",
-            style: TextStyle(color: Colors.white),
-          ));
+            }
+          : null, // Disable tap if no data
+      child: Opacity(
+        opacity: hasData ? 1.0 : 0.5, // Visual indication for disabled state
+        child: Container(
+          margin: const EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(4.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        color: hasData ? Colors.black : Colors.grey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.star_border_outlined,
+                      size: 18,
+                      color: hasData ? Colors.black : Colors.grey,
+                    ),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+              const Divider(color: Colors.black, height: 1),
+              Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
+                height: 150,
+                width: double.infinity,
+              ),
+              if (!hasData)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "No data available",
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

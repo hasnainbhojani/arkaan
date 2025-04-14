@@ -276,6 +276,21 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                 );
               },
             ),
+            SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8, left: 8),
+              child: Center(
+                  child: Text(
+                "These timings are based on Shia Ithna Ashari, Leva Research Institute, Qum",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+              )),
+            )
           ],
         ));
   }
