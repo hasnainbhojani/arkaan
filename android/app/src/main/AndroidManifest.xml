@@ -4,7 +4,7 @@
 
     <application
         android:usesCleartextTraffic="true"
-        android:label="Rehnuma-E-Hajj Ziyarat"
+        android:label="Hajij"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

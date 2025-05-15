@@ -1,4 +1,4 @@
-package com.example.hajj
+package com.hajij.hajj
 
 import io.flutter.embedding.android.FlutterActivity
 
