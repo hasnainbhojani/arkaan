@@ -1,15 +1,19 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hajj/config/api_config.dart';
 import 'package:hajj/models/hajj_data.dart';
 import 'package:hajj/pages/indexSection.dart';
 import 'package:hajj/services/data_service.dart';
 import 'package:hajj/services/image_cache.dart';
+import 'package:hajj/services/language_service.dart';
+import 'package:provider/provider.dart';
 
 class Sections extends StatefulWidget {
   final HajjDataList hajjData;
+  final List<Map<String, String>> endpoints;
 
-  const Sections({super.key, required this.hajjData});
+  const Sections({super.key, required this.hajjData, required this.endpoints});
 
   @override
   State<Sections> createState() => _SectionsState();
@@ -64,6 +68,12 @@ class _SectionsState extends State<Sections> {
   }
 
   void _refreshData(BuildContext context) {
+    // Get current language endpoints
+    final languageService =
+        Provider.of<LanguageService>(context, listen: false);
+    final endpoints =
+        ApiConfig.endpoints[languageService.currentLanguage] ?? [];
+
     showDialog(
       context: context,
       builder: (context) => const AlertDialog(
@@ -77,13 +87,14 @@ class _SectionsState extends State<Sections> {
       ),
     );
 
-    DataService.fetchAllData().then((newData) {
-      Navigator.pop(context); // Close loading dialog
+    DataService.fetchAllData(endpoints).then((newData) {
+      // Added endpoints parameter
+      Navigator.pop(context);
       setState(() {
         _selectedCategoryIndex = 0;
       });
     }).catchError((error) {
-      Navigator.pop(context); // Close loading dialog
+      Navigator.pop(context);
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -99,6 +110,43 @@ class _SectionsState extends State<Sections> {
       );
     });
   }
+
+  // void _refreshData(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => const AlertDialog(
+  //       content: Row(
+  //         children: [
+  //           CircularProgressIndicator(),
+  //           SizedBox(width: 20),
+  //           Text("Refreshing Data..."),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+
+  //   DataService.fetchAllData().then((newData) {
+  //     Navigator.pop(context); // Close loading dialog
+  //     setState(() {
+  //       _selectedCategoryIndex = 0;
+  //     });
+  //   }).catchError((error) {
+  //     Navigator.pop(context); // Close loading dialog
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) => AlertDialog(
+  //         title: const Text('Error'),
+  //         content: Text('Failed to refresh: $error'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.pop(context),
+  //             child: const Text('OK'),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   });
+  // }
 
   Widget _buildCategoryList(List<HajjCategory> categories) {
     return ListView.builder(

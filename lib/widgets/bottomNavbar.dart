@@ -10,16 +10,48 @@ import 'package:hajj/pages/aboutUs.dart';
 import 'package:hajj/pages/credits.dart';
 import 'package:hajj/pages/dua.dart';
 import 'package:hajj/pages/favourites.dart';
+import 'package:hajj/pages/language.dart';
 import 'package:hajj/pages/namazTime.dart';
+import 'package:hajj/pages/notifications.dart';
 import 'package:hajj/pages/policy.dart';
 import 'package:hajj/pages/queries.dart';
 import 'package:hajj/pages/search.dart';
 import 'package:hajj/pages/sections.dart';
 import 'package:hajj/pages/ziyarat.dart';
 import 'package:hajj/services/data_service.dart';
+import 'package:hajj/services/language_service.dart';
+import 'package:provider/provider.dart';
+
+// class navMenu extends StatefulWidget {
+//   const navMenu({super.key});
+
+//   @override
+//   State<navMenu> createState() => _navMenuState();
+// }
+
+// class _navMenuState extends State<navMenu> {
+//   int _currentIndex = 0;
+//   late Future<Map<String, HajjDataList>> _hajjData;
+//   late LanguageService _languageService;
+
+//   @override
+//   void didChangeDependencies() {
+//     super.didChangeDependencies();
+//     _languageService = Provider.of<LanguageService>(context, listen: false);
+//     _loadData();
+//   }
+
+//   void _loadData() {
+//     final endpoints = ApiConfig.endpoints[_languageService.currentLanguage]!;
+//     setState(() {
+//       _hajjData = DataService.fetchAllData(endpoints);
+//     });
+//   }
 
 class navMenu extends StatefulWidget {
-  const navMenu({super.key});
+  final Map<String, HajjDataList>? initialData;
+
+  const navMenu({super.key, this.initialData});
 
   @override
   State<navMenu> createState() => _navMenuState();
@@ -28,11 +60,31 @@ class navMenu extends StatefulWidget {
 class _navMenuState extends State<navMenu> {
   int _currentIndex = 0;
   late Future<Map<String, HajjDataList>> _hajjData;
+  late LanguageService _languageService;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _languageService = Provider.of<LanguageService>(context, listen: false);
+
+    // Use initial data if available, otherwise load fresh
+    _hajjData = widget.initialData != null
+        ? Future.value(widget.initialData)
+        : _loadData();
+  }
+
+  Future<Map<String, HajjDataList>> _loadData() async {
+    final endpoints = ApiConfig.endpoints[_languageService.currentLanguage]!;
+    return DataService.fetchAllData(endpoints);
+  }
 
   @override
   void initState() {
     super.initState();
-    _hajjData = DataService.fetchAllData();
+    final languageService =
+        Provider.of<LanguageService>(context, listen: false);
+    _hajjData = DataService.fetchAllData(
+        ApiConfig.endpoints[languageService.currentLanguage]!);
   }
 
   final List<String> _navMapping = [
@@ -42,12 +94,6 @@ class _navMenuState extends State<navMenu> {
     'category4',
     'category5'
   ];
-
-  void _loadData() {
-    setState(() {
-      _hajjData = DataService.fetchAllData();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +114,21 @@ class _navMenuState extends State<navMenu> {
             ),
             Row(
               children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NotificationsPage()));
+                  },
+                  child: Icon(
+                    Icons.notifications,
+                    size: 20,
+                  ),
+                ),
+                SizedBox(
+                  width: 30,
+                ),
                 // Namaztime feature Icon
                 InkWell(
                   onTap: () {
@@ -86,19 +147,22 @@ class _navMenuState extends State<navMenu> {
                 ),
                 // Search Feature Icon
                 InkWell(
+                  // Update the search button onTap handler:
                   onTap: () {
-                    // Wait for the data to load before navigating
+                    final languageService =
+                        Provider.of<LanguageService>(context, listen: false);
+                    final currentEndpoints =
+                        ApiConfig.endpoints[languageService.currentLanguage]!;
+
                     _hajjData.then((data) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SearchPage(allData: data),
+                          builder: (context) => SearchPage(
+                            allData: data,
+                            currentEndpoints: currentEndpoints,
+                          ),
                         ),
-                      );
-                    }).catchError((error) {
-                      // Show error if data loading fails
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error loading data: $error')),
                       );
                     });
                   },
@@ -135,6 +199,22 @@ class _navMenuState extends State<navMenu> {
               ),
             ),
             Image.asset("assets/image/sticker.png"),
+            Divider(
+              thickness: 0.1,
+            ),
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: const Text("Language"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LanguageSelectorPage(),
+                  ),
+                );
+              },
+            ),
             Divider(
               thickness: 0.1,
             ),
@@ -460,19 +540,26 @@ class _navMenuState extends State<navMenu> {
             height: 5,
           ),
           Expanded(
-            child: FutureBuilder<Map<String, HajjDataList>>(
-              future: _hajjData,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return _buildLoading();
-                }
-                if (snapshot.hasError) {
-                  return _buildError(snapshot.error!);
-                }
-                if (snapshot.hasData) {
-                  return _buildMainContent(snapshot.data!);
-                }
-                return _buildEmpty();
+            child: Consumer<LanguageService>(
+              builder: (context, languageService, child) {
+                final endpoints =
+                    ApiConfig.endpoints[languageService.currentLanguage]!;
+
+                return FutureBuilder<Map<String, HajjDataList>>(
+                  future: _hajjData,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return _buildLoading();
+                    }
+                    if (snapshot.hasError) {
+                      return _buildError(snapshot.error!);
+                    }
+                    if (snapshot.hasData) {
+                      return _buildMainContent(snapshot.data!);
+                    }
+                    return _buildEmpty();
+                  },
+                );
               },
             ),
           ),
@@ -508,6 +595,9 @@ class _navMenuState extends State<navMenu> {
         key: ValueKey('ziyarat_${DateTime.now()}'),
         category5Data: category5Data,
         category6Data: category6Data,
+        endpoints: ApiConfig.endpoints[
+            Provider.of<LanguageService>(context, listen: false)
+                .currentLanguage]!,
       );
     }
 
@@ -518,6 +608,9 @@ class _navMenuState extends State<navMenu> {
         ? Sections(
             key: ValueKey(_currentIndex),
             hajjData: categoryData,
+            endpoints: ApiConfig.endpoints[
+                Provider.of<LanguageService>(context, listen: false)
+                    .currentLanguage]!,
           )
         : _buildError('Category data not found');
   }
@@ -554,8 +647,14 @@ class _navMenuState extends State<navMenu> {
               style: TextStyle(color: Colors.white),
             ),
             ElevatedButton(
-              onPressed: () =>
-                  setState(() => _hajjData = DataService.fetchAllData()),
+              onPressed: () {
+                final currentEndpoints = ApiConfig.endpoints[
+                    Provider.of<LanguageService>(context, listen: false)
+                        .currentLanguage]!;
+                setState(() {
+                  _hajjData = DataService.fetchAllData(currentEndpoints);
+                });
+              },
               child: const Text('Retry'),
             ),
           ],

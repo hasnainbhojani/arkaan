@@ -1,19 +1,24 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hajj/config/api_config.dart';
 import 'package:hajj/models/hajj_data.dart';
 import 'package:hajj/pages/indexSection.dart';
 import 'package:hajj/pages/sections.dart';
 import 'package:hajj/services/data_service.dart';
+import 'package:hajj/services/language_service.dart';
+import 'package:provider/provider.dart';
 
 class Ziyarat extends StatefulWidget {
   final HajjDataList category5Data;
   final HajjDataList category6Data;
+  final List<Map<String, String>> endpoints;
 
   const Ziyarat({
     super.key,
     required this.category5Data,
     required this.category6Data,
+    required this.endpoints,
   });
 
   @override
@@ -30,24 +35,26 @@ class _ZiyaratState extends State<Ziyarat> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildCategoryCard(
-                    context,
-                    widget.category5Data,
-                    "assets/image/ziyarat.jpg",
-                    "Ziyarat",
-                    0,
-                  ),
-                  _buildCategoryCard(
-                    context,
-                    widget.category6Data,
-                    "assets/image/dua.jpg",
-                    "Dua",
-                    2,
-                  ),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildCategoryCard(
+                      context,
+                      widget.category5Data,
+                      "assets/image/ziyarat.jpg",
+                      "Ziyarat",
+                      0,
+                    ),
+                    _buildCategoryCard(
+                      context,
+                      widget.category6Data,
+                      "assets/image/dua.jpg",
+                      "Dua",
+                      2,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -248,7 +255,14 @@ class _ZiyaratDuaScreenState extends State<ZiyaratDuaScreen> {
     );
   }
 
+  // Update the _refreshData method in _ZiyaratDuaScreenState
   void _refreshData(BuildContext context) {
+    // Get current language endpoints
+    final languageService =
+        Provider.of<LanguageService>(context, listen: false);
+    final endpoints =
+        ApiConfig.endpoints[languageService.currentLanguage] ?? [];
+
     showDialog(
       context: context,
       builder: (context) => const AlertDialog(
@@ -262,13 +276,14 @@ class _ZiyaratDuaScreenState extends State<ZiyaratDuaScreen> {
       ),
     );
 
-    DataService.fetchAllData().then((newData) {
-      Navigator.pop(context); // Close loading dialog
+    DataService.fetchAllData(endpoints).then((newData) {
+      // Add endpoints parameter
+      Navigator.pop(context);
       setState(() {
         _selectedCategoryIndex = 0;
       });
     }).catchError((error) {
-      Navigator.pop(context); // Close loading dialog
+      Navigator.pop(context);
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -284,6 +299,43 @@ class _ZiyaratDuaScreenState extends State<ZiyaratDuaScreen> {
       );
     });
   }
+
+  // void _refreshData(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => const AlertDialog(
+  //       content: Row(
+  //         children: [
+  //           CircularProgressIndicator(),
+  //           SizedBox(width: 20),
+  //           Text("Refreshing Data..."),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+
+  //   DataService.fetchAllData().then((newData) {
+  //     Navigator.pop(context); // Close loading dialog
+  //     setState(() {
+  //       _selectedCategoryIndex = 0;
+  //     });
+  //   }).catchError((error) {
+  //     Navigator.pop(context); // Close loading dialog
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) => AlertDialog(
+  //         title: const Text('Error'),
+  //         content: Text('Failed to refresh: $error'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.pop(context),
+  //             child: const Text('OK'),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   });
+  // }
 
   Widget _buildCategoryCard(
     BuildContext context,
@@ -301,6 +353,9 @@ class _ZiyaratDuaScreenState extends State<ZiyaratDuaScreen> {
                 MaterialPageRoute(
                   builder: (context) => Sections(
                     hajjData: data,
+                    endpoints: ApiConfig.endpoints[
+                        Provider.of<LanguageService>(context, listen: false)
+                            .currentLanguage]!,
                   ),
                 ),
               );

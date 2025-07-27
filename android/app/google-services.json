@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "901176030158",
+    "project_id": "hajij-project",
+    "storage_bucket": "hajij-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901176030158:android:ffc9f0cdf9fe996132719f",
+        "android_client_info": {
+          "package_name": "com.hajij.hajj"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZXNbFzspZ4duNN7ZB8mhvTxbbcmeNJ0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

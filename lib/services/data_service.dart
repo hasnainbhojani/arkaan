@@ -9,11 +9,12 @@ import 'image_cache.dart';
 class DataService {
   static const String _boxName = 'hajjData';
 
-  static Future<Map<String, HajjDataList>> fetchAllData() async {
+  static Future<Map<String, HajjDataList>> fetchAllData(
+      List<Map<String, String>> endpoints) async {
     final Map<String, HajjDataList> results = {};
 
     await Future.wait(
-      ApiConfig.endpoints.map((endpoint) async {
+      endpoints.map((endpoint) async {
         try {
           final data = await _fetchEndpointData(endpoint);
           results[endpoint['key']!] = data;

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:hajj/config/api_config.dart';
+import 'package:hajj/services/language_service.dart';
+import 'package:provider/provider.dart';
 import '../models/hajj_data.dart';
 import 'detailsSection.dart';
 
 class SearchPage extends StatefulWidget {
   final Map<String, HajjDataList> allData;
+  final List<Map<String, String>> currentEndpoints;
 
-  const SearchPage({super.key, required this.allData});
+  const SearchPage(
+      {super.key, required this.allData, required this.currentEndpoints});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -29,20 +33,23 @@ class _SearchPageState extends State<SearchPage> {
   void _performSearch(String query) {
     final results = <SearchResult>[];
     final cleanQuery = query.trim().toLowerCase();
+    final languageService =
+        Provider.of<LanguageService>(context, listen: false);
+    final currentEndpoints =
+        ApiConfig.endpoints[languageService.currentLanguage] ?? [];
 
     if (cleanQuery.isEmpty) {
       setState(() => _searchResults = []);
       return;
     }
 
-    // Check for English characters
     if (_englishRegex.hasMatch(cleanQuery)) {
       setState(() => _searchResults = []);
       return;
     }
 
     widget.allData.forEach((categoryKey, hajjData) {
-      final categoryConfig = ApiConfig.endpoints.firstWhere(
+      final categoryConfig = currentEndpoints.firstWhere(
         (e) => e['key'] == categoryKey,
         orElse: () => {'name': 'Unknown Category'},
       );
