@@ -35,29 +35,56 @@ class _ZiyaratState extends State<Ziyarat> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildCategoryCard(
-                      context,
-                      widget.category5Data,
-                      "assets/image/ziyarat.jpg",
-                      "Ziyarat",
-                      0,
-                    ),
-                    _buildCategoryCard(
-                      context,
-                      widget.category6Data,
-                      "assets/image/dua.jpg",
-                      "Dua",
-                      2,
-                    ),
-                  ],
-                ),
+              child: ListView(
+                physics: BouncingScrollPhysics(),
+                padding: EdgeInsets.zero,
+                children: [
+                  _buildCategoryCard(
+                    context,
+                    widget.category5Data,
+                    "assets/image/ziyarat.jpg",
+                    "Ziyarat",
+                    0,
+                  ),
+                  SizedBox(height: 12),
+                  _buildCategoryCard(
+                    context,
+                    widget.category6Data,
+                    "assets/image/dua.jpg",
+                    "Dua",
+                    2,
+                  ),
+                ],
               ),
             ),
           ),
+
+          // Expanded(
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(12.0),
+          //     child: SingleChildScrollView(
+          //       child: Column(
+          //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //         children: [
+          //           _buildCategoryCard(
+          //             context,
+          //             widget.category5Data,
+          //             "assets/image/ziyarat.jpg",
+          //             "Ziyarat",
+          //             0,
+          //           ),
+          //           _buildCategoryCard(
+          //             context,
+          //             widget.category6Data,
+          //             "assets/image/dua.jpg",
+          //             "Dua",
+          //             2,
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

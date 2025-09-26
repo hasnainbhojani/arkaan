@@ -223,7 +223,10 @@ class _navMenuState extends State<navMenu> {
               title: Text("Refresh"),
               onTap: () {
                 Navigator.pop(context);
-                _loadData();
+                //_loadData();
+                setState(() {
+                  _hajjData = _loadData();
+                });
               },
             ),
             Divider(
@@ -361,6 +364,8 @@ class _navMenuState extends State<navMenu> {
                 SizedBox(height: 2), // Reduced spacing
                 Text(
                   "Umrah Tamattu",
+                  textAlign: TextAlign.center, // Center align text
+                  softWrap: true, // Allow text to wrap
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 9), // Adjust font size
@@ -381,6 +386,8 @@ class _navMenuState extends State<navMenu> {
                 SizedBox(height: 2),
                 Text(
                   "Hajj Tamattu",
+                  textAlign: TextAlign.center, // Center align text
+                  softWrap: true, // Allow text to wrap
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 9),
                   overflow: TextOverflow.ellipsis,
                 )
@@ -399,6 +406,8 @@ class _navMenuState extends State<navMenu> {
                 SizedBox(height: 2),
                 Text(
                   "Umrah Mufreda",
+                  textAlign: TextAlign.center, // Center align text
+                  softWrap: true, // Allow text to wrap
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 9),
                   overflow: TextOverflow.ellipsis,
                 )
@@ -417,6 +426,8 @@ class _navMenuState extends State<navMenu> {
                 SizedBox(height: 2),
                 Text(
                   "Mecca Madinah",
+                  textAlign: TextAlign.center, // Center align text
+                  softWrap: true, // Allow text to wrap
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 9),
                   overflow: TextOverflow.ellipsis,
                 )
@@ -435,6 +446,8 @@ class _navMenuState extends State<navMenu> {
                 SizedBox(height: 2),
                 Text(
                   "Ziyarat",
+                  textAlign: TextAlign.center, // Center align text
+                  softWrap: true, // Allow text to wrap
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 9),
                   overflow: TextOverflow.ellipsis,
                 )
