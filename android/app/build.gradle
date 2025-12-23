@@ -18,12 +18,12 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
-    flutterVersionCode = "2"
+    flutterVersionCode = "3"
 }
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "2.0"
+    flutterVersionName = "3.0"
 }
 
 def keystoreProperties = new Properties()
@@ -32,34 +32,36 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
-
 android {
     namespace = "com.hajij.hajj"
-    //compileSdk = flutter.compileSdkVersion
-    compileSdk = 35
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 36
+    ndkVersion "26.2.11394342" // Explicitly set latest NDK version for 16 KB page size support
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.hajij.hajj"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion flutter.minSdkVersion
-        multiDexEnabled = true
-        // targetSdk = flutter.targetSdkVersion
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+        multiDexEnabled = true
+
+        // If you use native code, you can enable this:
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
     }
-    
+
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String
@@ -69,12 +71,18 @@ android {
         }
     }
 
-
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("release")
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+
+    // If native code is used, define CMake version
+    externalNativeBuild {
+        cmake {
+            version "3.22.1"
         }
     }
 }
@@ -82,6 +90,92 @@ android {
 flutter {
     source = "../.."
 }
+
+
+// import java.util.Properties
+// import java.io.FileInputStream
+
+// plugins {
+//     id "com.android.application"
+//     id "kotlin-android"
+//     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+//     id "dev.flutter.flutter-gradle-plugin"
+// }
+
+// def localProperties = new Properties()
+// def localPropertiesFile = rootProject.file("local.properties")
+// if (localPropertiesFile.exists()) {
+//     localPropertiesFile.withReader("UTF-8") { reader ->
+//         localProperties.load(reader)
+//     }
+// }
+
+// def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
+// if (flutterVersionCode == null) {
+//     flutterVersionCode = "2"
+// }
+
+// def flutterVersionName = localProperties.getProperty("flutter.versionName")
+// if (flutterVersionName == null) {
+//     flutterVersionName = "2.0"
+// }
+
+// def keystoreProperties = new Properties()
+// def keystorePropertiesFile = rootProject.file("key.properties")
+// if (keystorePropertiesFile.exists()) {
+//     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+// }
+
+
+// android {
+//     namespace = "com.hajij.hajj"
+//     //compileSdk = flutter.compileSdkVersion
+//     compileSdk = 35
+//     ndkVersion = flutter.ndkVersion
+
+//     compileOptions {
+//         sourceCompatibility = JavaVersion.VERSION_17
+//         targetCompatibility = JavaVersion.VERSION_17
+//     }
+//     kotlinOptions {
+//         jvmTarget = "17"
+//     }
+
+//     defaultConfig {
+//         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+//         applicationId = "com.hajij.hajj"
+//         // You can update the following values to match your application needs.
+//         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+//         minSdkVersion flutter.minSdkVersion
+//         multiDexEnabled = true
+//         // targetSdk = flutter.targetSdkVersion
+//         targetSdk = 35
+//         versionCode = flutterVersionCode.toInteger()
+//         versionName = flutterVersionName
+//     }
+    
+//     signingConfigs {
+//         create("release") {
+//             keyAlias = keystoreProperties["keyAlias"] as String
+//             keyPassword = keystoreProperties["keyPassword"] as String
+//             storeFile = keystoreProperties["storeFile"] ? file(keystoreProperties["storeFile"]) : null
+//             storePassword = keystoreProperties["storePassword"] as String
+//         }
+//     }
+
+
+//     buildTypes {
+//         release {
+//             // TODO: Add your own signing config for the release build.
+//             // Signing with the debug keys for now, so `flutter run --release` works.
+//             signingConfig = signingConfigs.getByName("release")
+//         }
+//     }
+// }
+
+// flutter {
+//     source = "../.."
+// }
 
     
  
