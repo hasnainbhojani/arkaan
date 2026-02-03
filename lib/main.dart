@@ -1,54 +1,40 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hajj/api/firebase_api.dart';
-import 'package:hajj/api/local_notifications.dart';
-import 'package:hajj/firebase_options.dart';
-import 'package:hajj/models/notification_model.dart';
-import 'package:hajj/pages/language.dart';
-import 'package:hajj/pages/splash.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hajj/services/language_service.dart';
-import 'package:hajj/widgets/bottomNavbar.dart';
-
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
-
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage msg) async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  // handle background message if needed…
-}
+import 'models/notification_model.dart';
+import 'pages/splash.dart';
+import 'pages/notifications.dart';
+import 'services/language_service.dart';
+import 'api/local_notifications.dart';
+import 'models/notification_background_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // 1. Initialize the NotificationService
+  // 🔔 Local notifications init
   await LocalNotificationService.init();
 
-  // 2. Set up background handler
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // 🔴 Background handler
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
+  // 🗄 Hive init
   await Hive.initFlutter();
+  Hive.registerAdapter(NotificationModelAdapter());
+  await Hive.openBox<NotificationModel>('notifications');
+
   final prefs = await SharedPreferences.getInstance();
   final initialLang = prefs.getString('selected_language') ?? '';
-
-  await Hive.initFlutter();
-  // register the adapter
-  Hive.registerAdapter(NotificationModelAdapter());
-  // open a box to store notifications
-  await Hive.openBox<NotificationModel>('notifications');
 
   runApp(
     MultiProvider(
@@ -60,14 +46,6 @@ void main() async {
       child: const MyApp(),
     ),
   );
-  // runApp(
-  //   MultiProvider(
-  //     providers: [
-  //       ChangeNotifierProvider(create: (context) => LanguageService()),
-  //     ],
-  //     child: const MyApp(),
-  //   ),
-  // );
 }
 
 class MyApp extends StatefulWidget {
@@ -82,15 +60,41 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    // 3. Listen for foreground messages
+    // 🔹 Foreground messages
     FirebaseMessaging.onMessage.listen((msg) {
+      _saveNotification(msg);
       LocalNotificationService.showNotification(msg);
     });
 
-    // (Optional) handle taps when app is opened via notification
+    // 🔹 App opened from background by tap
     FirebaseMessaging.onMessageOpenedApp.listen((msg) {
-      print(msg);
+      _saveNotification(msg);
+      _openNotificationsPage();
     });
+
+    // 🔹 App opened from terminated state
+    FirebaseMessaging.instance.getInitialMessage().then((msg) {
+      if (msg != null) {
+        _saveNotification(msg);
+        _openNotificationsPage();
+      }
+    });
+  }
+
+  void _saveNotification(RemoteMessage msg) {
+    final box = Hive.box<NotificationModel>('notifications');
+
+    box.add(
+      NotificationModel(
+        title: msg.notification?.title,
+        body: msg.notification?.body,
+        timestamp: DateTime.now(),
+      ),
+    );
+  }
+
+  void _openNotificationsPage() {
+    Get.to(() => const NotificationsPage());
   }
 
   @override
@@ -106,10 +110,9 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
-          textTheme: GoogleFonts.poppinsTextTheme(),
-          colorScheme: ColorScheme.dark(),
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent),
+        textTheme: GoogleFonts.poppinsTextTheme(),
+        colorScheme: const ColorScheme.dark(),
+      ),
       home: const SplashScreen(),
     );
   }

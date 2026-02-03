@@ -35,7 +35,7 @@ class _QueriesState extends State<Queries> {
     String topic = _topic.text;
     String query = _query.text;
 
-    String apiUrl = 'http://famtechglobal.com/arkan/public/save_question?'
+    String apiUrl = 'http://haniyabiz.online/arkan/public/save_question?'
         'name=${Uri.encodeComponent(name)}&'
         'email=${Uri.encodeComponent(email)}&'
         'phone=${Uri.encodeComponent(phone)}&'

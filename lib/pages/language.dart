@@ -40,9 +40,9 @@ class _LanguageSelectorPageState extends State<LanguageSelectorPage> {
           Expanded(
             child: ListView(
               children: [
-                _buildLanguageTile('Gujarati', 'gujarati'),
+                _buildLanguageTile('ગુજરાતી', 'gujarati'),
                 _buildLanguageTile('English', 'english'),
-                _buildLanguageTile('Urdu', 'urdu'),
+                _buildLanguageTile('اردو', 'urdu'),
                 _buildLanguageTile('Roman', 'roman'),
               ],
             ),
